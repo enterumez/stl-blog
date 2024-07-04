@@ -114,9 +114,9 @@ elif choice == "View Posts":
     st.write("Here you can see all the posts in the blog.")
     posts = get_all_posts()
     for i, post in enumerate(posts):
+        title_key = f"post_title_{post[0]}"
         st.markdown(title_temp.format(post[1], post[0], post[2][:50] + "..."), unsafe_allow_html=True)
-        button_key = f"Read More###{post[0]}"  # ここで一意のキーを生成する
-        if st.button(button_key):
+        if st.button(f"Read More###{title_key}"):
             st.markdown(post_temp.format(post[1], post[0], post[3], post[2]), unsafe_allow_html=True)
 elif choice == "Add Post":
     st.title("Add Post")
@@ -140,9 +140,9 @@ elif choice == "Search":
         if results:
             st.write(f"Found {len(results)} matching posts:")
             for result in results:
+                title_key = f"post_title_{result[0]}"
                 st.markdown(title_temp.format(result[1], result[0], result[2][:50] + "..."), unsafe_allow_html=True)
-                button_key = f"Read More###{result[0]}"  # ここで一意のキーを生成する
-                if st.button(button_key):
+                if st.button(f"Read More###{title_key}"):
                     st.markdown(post_temp.format(result[1], result[0], result[3], result[2]), unsafe_allow_html=True)
         else:
             st.write("No matching posts found")
