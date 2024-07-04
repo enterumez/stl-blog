@@ -112,55 +112,73 @@ if choice == "Home":
 elif choice == "View Posts":
     st.title("View Posts")
     st.write("Here you can see all the posts in the blog.")
+    # Get all the posts from the database
     posts = get_all_posts()
+    # Display each post as a card
     for i, post in enumerate(posts):
-        title_key = f"post_title_{post[0]}"
         st.markdown(title_temp.format(post[1], post[0], post[2][:50] + "..."), unsafe_allow_html=True)
-        if st.button(f"Read More###{title_key}"):
+        # Add a button to view the full post
+        button_key = f"Read More###{i}"  # Generate a unique key here
+        if st.button(button_key):
             st.markdown(post_temp.format(post[1], post[0], post[3], post[2]), unsafe_allow_html=True)
 elif choice == "Add Post":
     st.title("Add Post")
     st.write("Here you can add a new post to the blog.")
+    # Create a form to get the post details
     with st.form(key="add_form"):
         author = st.text_input("Author")
         title = st.text_input("Title")
         content = st.text_area("Content")
         date = st.date_input("Date")
         submit = st.form_submit_button("Submit")
+    # If the form is submitted, add the post to the database
     if submit:
         add_post(author, title, content, date)
         st.success("Post added successfully")
 elif choice == "Search":
     st.title("Search")
     st.write("Here you can search for a post by title or author.")
+    # Create a text input to get the search query
     query = st.text_input("Enter your query")
+    # If the query is not empty, search for the matching posts
     if query:
+        # Get all the posts from the database
         posts = get_all_posts()
+        # Filter the posts by the query
         results = [post for post in posts if query.lower() in post[0].lower() or query.lower() in post[1].lower()]
+        # Display the results
         if results:
             st.write(f"Found {len(results)} matching posts:")
             for result in results:
-                title_key = f"post_title_{result[0]}"
                 st.markdown(title_temp.format(result[1], result[0], result[2][:50] + "..."), unsafe_allow_html=True)
-                if st.button(f"Read More###{title_key}"):
+                # Add a button to view the full post
+                button_key = f"Read More###{result[0]}"  # Generate a unique key here
+                if st.button(button_key):
                     st.markdown(post_temp.format(result[1], result[0], result[3], result[2]), unsafe_allow_html=True)
         else:
             st.write("No matching posts found")
 elif choice == "Manage":
     st.title("Manage")
     st.write("Here you can delete posts or view some statistics.")
+    # Create a selectbox to choose a post to delete
     titles = [post[1] for post in get_all_posts()]
     title = st.selectbox("Select a post to delete", titles)
+    # Add a button to confirm the deletion
     if st.button("Delete"):
         delete_post(title)
         st.success("Post deleted successfully")
+    # Create a checkbox to show some statistics
     if st.checkbox("Show statistics"):
+        # Get all the posts from the database
         posts = get_all_posts()
+        # Convert the posts to a dataframe
         df = pd.DataFrame(posts, columns=["author", "title", "content", "date"])
+        # Display some basic statistics
         st.write("Number of posts:", len(posts))
         st.write("Number of authors:", len(df["author"].unique()))
         st.write("Most recent post:", df["date"].max())
         st.write("Oldest post:", df["date"].min())
+        # Display a bar chart of posts by author
         st.write("Posts by author:")
         author_count = df["author"].value_counts()
         st.bar_chart(author_count)
