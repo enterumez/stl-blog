@@ -9,8 +9,6 @@ Original file is located at
 
 pip install streamlit
 
-pip freeze
-
 import sqlite3
 import pandas as pd
 
