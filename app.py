@@ -66,6 +66,7 @@ def get_all_posts():
         data = c.fetchall()
         c.close()
         conn.close()
+        st.write("DEBUG: Data fetched from database:", data)  # デバッグ用出力
         return data
     except sqlite3.Error as e:
         st.write(e)
@@ -136,6 +137,7 @@ elif choice == "View Posts":
     st.write("Here you can see all the posts in the blog.")
     # Get all the posts from the database
     posts = get_all_posts()
+    st.write("DEBUG: Posts fetched:", posts)  # デバッグ用出力
     # Display each post as a card
     for i, post in enumerate(posts):
         st.markdown(title_temp.format(post[2], post[1], post[3][:50] + "..."), unsafe_allow_html=True)
@@ -202,24 +204,6 @@ elif choice == "Manage":
     st.title("Manage")
     st.write("Here you can delete posts or view some statistics.")
     # Create a selectbox to choose a post to delete
-    titles = [post[1] for post in get_all_posts()]
+    titles = [post[2] for post in get_all_posts()]
     title = st.selectbox("Select a post to delete", titles)
-    # Add a button to confirm the deletion
-    if st.button("Delete"):
-        delete_post(title)
-        st.success("Post deleted successfully")
-    # Create a checkbox to show some statistics
-    if st.checkbox("Show statistics"):
-        # Get all the posts from the database
-        posts = get_all_posts()
-        # Convert the posts to a dataframe
-        df = pd.DataFrame(posts, columns=["id", "author", "title", "content", "date"])
-        # Display some basic statistics
-        st.write("Number of posts:", len(posts))
-        st.write("Number of authors:", len(df["author"].unique()))
-        st.write("Most recent post:", df["date"].max())
-        st.write("Oldest post:", df["date"].min())
-        # Display a bar chart of posts by author
-        st.write("Posts by author:")
-        author_count = df["author"].value_counts()
-        st.bar_chart(author_count)
+    # Add a button to confirm
