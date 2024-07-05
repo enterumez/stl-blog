@@ -96,14 +96,14 @@ delete_password = "shuta0105"
 create_password = "shuta0105"
 
 # Create a sidebar menu with different options
-menu = ["Home", "View Posts", "Add Post", "Search", "Manage"]
+menu = ["Home", "View Posts", "Add Post", "Manage"]
 choice = st.sidebar.selectbox("Menu", menu)
 
 # Display the selected option
 if choice == "Home":
     st.title("Welcome to my blog")
     st.write("This is a simple blog app built with streamlit and python.")
-    st.write("You can view, add, search, and manage posts using the sidebar menu.")
+    st.write("You can view, add, and manage posts using the sidebar menu.")
     st.write("Enjoy!")
 elif choice == "View Posts":
     st.title("View Posts")
@@ -135,28 +135,6 @@ elif choice == "Add Post":
             st.success("Post added successfully")
         else:
             st.error("Invalid password")
-elif choice == "Search":
-    st.title("Search")
-    st.write("Here you can search for a post by title or author.")
-    # Create a text input to get the search query
-    query = st.text_input("Enter your query")
-    # If the query is not empty, search for the matching posts
-    if query:
-        # Get all the posts from the database
-        posts = get_all_posts()
-        # Filter the posts by the query
-        results = [post for post in posts if query.lower() in post[0].lower() or query.lower() in post[1].lower()]
-        # Display the results
-        if results:
-            st.write(f"Found {len(results)} matching posts:")
-            for result in results:
-                st.markdown(title_temp.format(result[1], result[0], result[2][:50] + "..."), unsafe_allow_html=True)
-                # Add a button to view the full post
-                button_key = f"read_more_{result[0]}"  # Generate a unique key here
-                if st.button("Read More", key=button_key):
-                    st.markdown(post_temp.format(result[1], result[0], result[3], result[2]), unsafe_allow_html=True)
-        else:
-            st.write("No matching posts found")
 elif choice == "Manage":
     st.title("Manage")
     st.write("Here you can delete posts or view some statistics.")
