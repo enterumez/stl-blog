@@ -128,7 +128,7 @@ elif choice == "View Posts":
     posts = get_all_posts()
     # Display each post with update and read more buttons
     for i, post in enumerate(posts):
-        st.markdown(title_temp.format(post[1], post[0], post[3], post[2][:50] + "..."), unsafe_allow_html=True)
+            st.markdown(post_temp.format(post[1], post[0], post[3], post[2]), unsafe_allow_html=True)
         # Add a button to view the full post
         read_more_button_key = f"read_more_{post[0]}"  # Generate a unique key here
         if st.button("Read More", key=read_more_button_key):
