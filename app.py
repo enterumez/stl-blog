@@ -38,8 +38,9 @@ def add_post(author, title, content, date):
         conn.commit()
         c.close()
         conn.close()
+        st.success("Post added successfully")
     except sqlite3.Error as e:
-        st.write(e)
+        st.error(f"Error adding post: {e}")
 
 # すべての投稿を取得する関数を定義します
 def get_all_posts():
@@ -52,34 +53,39 @@ def get_all_posts():
         conn.close()
         return data
     except sqlite3.Error as e:
-        st.write(e)
+        st.error(f"Error fetching posts: {e}")
         return []
 
-# タイトルで投稿を取得する関数を定義します
-def get_post_by_title(title):
+# 特定の投稿をIDで取得する関数を定義します
+def get_post_by_id(post_id):
     try:
         conn = sqlite3.connect(database)
         c = conn.cursor()
-        c.execute('SELECT * FROM posts WHERE title=?', (title,))
+        c.execute('SELECT * FROM posts WHERE id=?', (post_id,))
         data = c.fetchone()
         c.close()
         conn.close()
         return data
     except sqlite3.Error as e:
-        st.write(e)
+        st.error(f"Error fetching post: {e}")
         return None
 
-# 投稿を削除する関数を定義します
-def delete_post(title):
+# 投稿を更新する関数を定義します
+def update_post(post_id, author, title, content, date):
     try:
         conn = sqlite3.connect(database)
         c = conn.cursor()
-        c.execute('DELETE FROM posts WHERE title=?', (title,))
+        c.execute('''
+        UPDATE posts
+        SET author=?, title=?, content=?, date=?
+        WHERE id=?
+        ''', (author, title, content, date, post_id))
         conn.commit()
         c.close()
         conn.close()
+        st.success("Post updated successfully")
     except sqlite3.Error as e:
-        st.write(e)
+        st.error(f"Error updating post: {e}")
 
 # Define some HTML templates for displaying the posts
 title_temp = """
@@ -120,15 +126,14 @@ elif choice == "View Posts":
     st.write("Here you can see all the posts in the blog.")
     # Get all the posts from the database
     posts = get_all_posts()
-    # Display each post as a card
+    # Display each post with update and read more buttons
     for i, post in enumerate(posts):
         st.markdown(title_temp.format(post[1], post[0], post[2][:50] + "..."), unsafe_allow_html=True)
         # Add a button to view the full post
-        button_key = f"read_more_{post[0]}"  # Generate a unique key here
-        if st.button("Read More", key=button_key):
+        read_more_button_key = f"read_more_{post[0]}"  # Generate a unique key here
+        if st.button("Read More", key=read_more_button_key):
             st.markdown(post_temp.format(post[1], post[0], post[3], post[2]), unsafe_allow_html=True)
-
-    for i, post in enumerate(posts):
+        # Add a button to update the post
         update_button_key = f"update_post_{post[0]}"  # Generate a unique key here
         if st.button("Update", key=update_button_key):
             # Show form to update post
@@ -136,11 +141,10 @@ elif choice == "View Posts":
                 author = st.text_input("Author", value=post[1])
                 title = st.text_input("Title", value=post[2])
                 content = st.text_area("Content", value=post[3])
-                date = st.date_input("Date", value=post[4])
+                date = st.date_input("Date", value=post[4]) if post[4] else st.date_input("Date")
                 submit = st.form_submit_button("Submit")
             if submit:
                 update_post(post[0], author, title, content, date)
-            
 elif choice == "Add Post":
     st.title("Add Post")
     st.write("Here you can add a new post to the blog.")
@@ -154,7 +158,6 @@ elif choice == "Add Post":
     # If the form is submitted, add the post to the database
     if submit:
         add_post(author, title, content, date)
-        st.success("Post added successfully")
 elif choice == "Search":
     st.title("Search")
     st.write("Here you can search for a post by title or author.")
@@ -172,8 +175,8 @@ elif choice == "Search":
             for result in results:
                 st.markdown(title_temp.format(result[1], result[0], result[2][:50] + "..."), unsafe_allow_html=True)
                 # Add a button to view the full post
-                button_key = f"read_more_{result[0]}"  # Generate a unique key here
-                if st.button("Read More", key=button_key):
+                read_more_button_key = f"read_more_{result[0]}"  # Generate a unique key here
+                if st.button("Read More", key=read_more_button_key):
                     st.markdown(post_temp.format(result[1], result[0], result[3], result[2]), unsafe_allow_html=True)
         else:
             st.write("No matching posts found")
