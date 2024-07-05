@@ -23,24 +23,22 @@ if not os.path.exists(database):
     c.close()
     conn.close()
 
-# 新しい投稿を追加する関数を定義します
-def add_post(author, title, content, date):
+# 投稿を更新する関数を定義します
+def update_post(post_id, author, title, content):
     try:
         conn = sqlite3.connect(database)
         c = conn.cursor()
         c.execute('''
-        INSERT INTO posts (author, title, content, date)
-        SELECT ?, ?, ?, ?
-        WHERE NOT EXISTS (
-            SELECT 1 FROM posts WHERE author = ? AND title = ? AND content = ? AND date = ?
-        )
-        ''', (author, title, content, date, author, title, content, date))
+        UPDATE posts
+        SET author=?, title=?, content=?
+        WHERE id=?
+        ''', (author, title, content, post_id))
         conn.commit()
         c.close()
         conn.close()
-        st.success("Post added successfully")
+        st.success("Post updated successfully")
     except sqlite3.Error as e:
-        st.error(f"Error adding post: {e}")
+        st.error(f"Error updating post: {e}")
 
 # すべての投稿を取得する関数を定義します
 def get_all_posts():
