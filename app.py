@@ -92,8 +92,8 @@ post_temp = """
 """
 
 # Predefined password for deletion and creation
-delete_password = "your_secure_password"
-create_password = "your_secure_create_password"
+delete_password = "shuta0105"
+create_password = "shuta0105"
 
 # Create a sidebar menu with different options
 menu = ["Home", "View Posts", "Add Post", "Search", "Manage"]
