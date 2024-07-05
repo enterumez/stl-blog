@@ -105,8 +105,7 @@ if choice == "Home":
     st.title("Welcome to my blog")
     st.write("This is a simple blog app built with streamlit and python.")
     st.write("You can view, add, and manage posts using the sidebar menu.")
-    image = Image.open('Image/図2.png')
-    st.image(image)
+
 elif choice == "View Posts":
     st.title("View Posts")
     st.write("Here you can see all the posts in the blog.")
