@@ -6,22 +6,24 @@ import pandas as pd
 # データベースファイルの名前
 database = 'blog.db'
 
-# データベースファイルが存在しない場合に作成
-if not os.path.exists(database):
-    conn = sqlite3.connect(database)
-    c = conn.cursor()
-    c.execute('''
-    CREATE TABLE IF NOT EXISTS posts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        author TEXT NOT NULL,
-        title TEXT NOT NULL,
-        content TEXT NOT NULL,
-        date DATE NOT NULL
-    )
-    ''')
-    conn.commit()
-    c.close()
-    conn.close()
+# データベースファイルを再作成
+if os.path.exists(database):
+    os.remove(database)
+
+conn = sqlite3.connect(database)
+c = conn.cursor()
+c.execute('''
+CREATE TABLE IF NOT EXISTS posts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    author TEXT NOT NULL,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    date DATE NOT NULL
+)
+''')
+conn.commit()
+c.close()
+conn.close()
 
 # 新しい投稿を追加する関数を定義します
 def add_post(author, title, content, date):
@@ -69,7 +71,7 @@ def get_all_posts():
         st.write(e)
         return []
 
-# タイトルで投稿を取得する関数を定義します
+# 投稿IDで投稿を取得する関数を定義します
 def get_post_by_id(post_id):
     try:
         conn = sqlite3.connect(database)
@@ -136,11 +138,11 @@ elif choice == "View Posts":
     posts = get_all_posts()
     # Display each post as a card
     for i, post in enumerate(posts):
-        st.markdown(title_temp.format(post[1], post[0], post[2][:50] + "..."), unsafe_allow_html=True)
+        st.markdown(title_temp.format(post[2], post[1], post[3][:50] + "..."), unsafe_allow_html=True)
         # Add buttons to view the full post and update it
         button_key = f"read_more_{post[0]}"  # Generate a unique key here
         if st.button("Read More", key=button_key):
-            st.markdown(post_temp.format(post[1], post[0], post[3], post[2]), unsafe_allow_html=True)
+            st.markdown(post_temp.format(post[2], post[1], post[4], post[3]), unsafe_allow_html=True)
         update_key = f"update_{post[0]}"
         if st.button("Update", key=update_key):
             st.session_state['update_post_id'] = post[0]
@@ -211,7 +213,7 @@ elif choice == "Manage":
         # Get all the posts from the database
         posts = get_all_posts()
         # Convert the posts to a dataframe
-        df = pd.DataFrame(posts, columns=["author", "title", "content", "date"])
+        df = pd.DataFrame(posts, columns=["id", "author", "title", "content", "date"])
         # Display some basic statistics
         st.write("Number of posts:", len(posts))
         st.write("Number of authors:", len(df["author"].unique()))
