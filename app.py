@@ -38,6 +38,7 @@ def add_post(author, title, content, date):
         conn.commit()
         c.close()
         conn.close()
+        st.success("Post added successfully")
     except sqlite3.Error as e:
         st.error(f"Error adding post: {e}")
 
@@ -144,7 +145,6 @@ elif choice == "View Posts":
                 submit = st.form_submit_button("Submit")
             if submit:
                 update_post(post[0], author, title, content, date)
-                st.success("Post updated successfully")
 elif choice == "Add Post":
     st.title("Add Post")
     st.write("Here you can add a new post to the blog.")
@@ -158,7 +158,6 @@ elif choice == "Add Post":
     # If the form is submitted, add the post to the database
     if submit:
         add_post(author, title, content, date)
-        st.success("Post added successfully")
 elif choice == "Search":
     st.title("Search")
     st.write("Here you can search for a post by title or author.")
@@ -176,8 +175,8 @@ elif choice == "Search":
             for result in results:
                 st.markdown(title_temp.format(result[1], result[0], result[2][:50] + "..."), unsafe_allow_html=True)
                 # Add a button to view the full post
-                button_key = f"read_more_{result[0]}"  # Generate a unique key here
-                if st.button("Read More", key=button_key):
+                read_more_button_key = f"read_more_{result[0]}"  # Generate a unique key here
+                if st.button("Read More", key=read_more_button_key):
                     st.markdown(post_temp.format(result[1], result[0], result[3], result[2]), unsafe_allow_html=True)
         else:
             st.write("No matching posts found")
