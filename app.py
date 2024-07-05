@@ -28,7 +28,13 @@ def add_post(author, title, content, date):
     try:
         conn = sqlite3.connect(database)
         c = conn.cursor()
-        c.execute('INSERT INTO posts (author, title, content, date) VALUES (?,?,?,?)', (author, title, content, date))
+        c.execute('''
+        INSERT INTO posts (author, title, content, date)
+        SELECT ?, ?, ?, ?
+        WHERE NOT EXISTS (
+            SELECT 1 FROM posts WHERE author = ? AND title = ? AND content = ? AND date = ?
+        )
+        ''', (author, title, content, date, author, title, content, date))
         conn.commit()
         c.close()
         conn.close()
@@ -118,8 +124,8 @@ elif choice == "View Posts":
     for i, post in enumerate(posts):
         st.markdown(title_temp.format(post[1], post[0], post[2][:50] + "..."), unsafe_allow_html=True)
         # Add a button to view the full post
-        button_key = f"Read More###{i}"  # Generate a unique key here
-        if st.button(button_key):
+        button_key = f"read_more_{post[0]}"  # Generate a unique key here
+        if st.button("Read More", key=button_key):
             st.markdown(post_temp.format(post[1], post[0], post[3], post[2]), unsafe_allow_html=True)
 elif choice == "Add Post":
     st.title("Add Post")
@@ -152,8 +158,8 @@ elif choice == "Search":
             for result in results:
                 st.markdown(title_temp.format(result[1], result[0], result[2][:50] + "..."), unsafe_allow_html=True)
                 # Add a button to view the full post
-                button_key = f"Read More###{result[0]}"  # Generate a unique key here
-                if st.button(button_key):
+                button_key = f"read_more_{result[0]}"  # Generate a unique key here
+                if st.button("Read More", key=button_key):
                     st.markdown(post_temp.format(result[1], result[0], result[3], result[2]), unsafe_allow_html=True)
         else:
             st.write("No matching posts found")
