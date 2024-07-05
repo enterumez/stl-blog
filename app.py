@@ -121,12 +121,12 @@ elif choice == "View Posts":
     # Get all the posts from the database
     posts = get_all_posts()
     # Display each post as a card
-    for i, post in enumerate(posts):
-        st.markdown(title_temp.format(post[1], post[0], post[2][:50] + "..."), unsafe_allow_html=True)
+    for post in posts:
+        st.markdown(title_temp.format(post[2], post[1], post[3][:50] + "..."), unsafe_allow_html=True)
         # Add a button to view the full post
         button_key = f"read_more_{post[0]}"  # Generate a unique key here
         if st.button("Read More", key=button_key):
-            st.markdown(post_temp.format(post[1], post[0], post[3], post[2]), unsafe_allow_html=True)
+            st.markdown(post_temp.format(post[2], post[1], post[4], post[3]), unsafe_allow_html=True)
 elif choice == "Add Post":
     st.title("Add Post")
     st.write("Here you can add a new post to the blog.")
