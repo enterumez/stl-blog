@@ -30,8 +30,11 @@ def add_post(author, title, content, date):
         c = conn.cursor()
         c.execute('''
         INSERT INTO posts (author, title, content, date)
-        VALUES (?, ?, ?, ?)
-        ''', (author, title, content, date))
+        SELECT ?, ?, ?, ?
+        WHERE NOT EXISTS (
+            SELECT 1 FROM posts WHERE author = ? AND title = ? AND content = ? AND date = ?
+        )
+        ''', (author, title, content, date, author, title, content, date))
         conn.commit()
         c.close()
         conn.close()
@@ -72,22 +75,6 @@ def delete_post(title):
         conn = sqlite3.connect(database)
         c = conn.cursor()
         c.execute('DELETE FROM posts WHERE title=?', (title,))
-        conn.commit()
-        c.close()
-        conn.close()
-    except sqlite3.Error as e:
-        st.write(e)
-
-# 投稿を更新する関数を定義します
-def update_post(id, author, title, content, date):
-    try:
-        conn = sqlite3.connect(database)
-        c = conn.cursor()
-        c.execute('''
-        UPDATE posts 
-        SET author=?, title=?, content=?, date=?
-        WHERE id=?
-        ''', (author, title, content, date, id))
         conn.commit()
         c.close()
         conn.close()
@@ -136,19 +123,10 @@ elif choice == "View Posts":
     # Display each post as a card
     for post in posts:
         st.markdown(title_temp.format(post[2], post[1], post[3][:50] + "..."), unsafe_allow_html=True)
-        # Add an update button for each post
-        update_button_key = f"update_post_{post[0]}"
-        if st.button("Update", key=update_button_key):
-            # Create a form to update the post
-            with st.form(key=f"update_form_{post[0]}"):
-                author = st.text_input("Author", value=post[1])
-                title = st.text_input("Title", value=post[2])
-                content = st.text_area("Content", value=post[3])
-                update_submit = st.form_submit_button("Update Post")
-            # If update form is submitted, update the post
-            if update_submit:
-                update_post(post[0], author, title, content)
-                st.success("Post updated successfully")
+        # Add a button to view the full post
+        button_key = f"read_more_{post[0]}"  # Generate a unique key here
+        if st.button("Read More", key=button_key):
+            st.markdown(post_temp.format(post[2], post[1], post[4], post[3]), unsafe_allow_html=True)
 elif choice == "Add Post":
     st.title("Add Post")
     st.write("Here you can add a new post to the blog.")
