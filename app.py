@@ -23,22 +23,23 @@ if not os.path.exists(database):
     c.close()
     conn.close()
 
-# 投稿を更新する関数を定義します
-def update_post(post_id, author, title, content):
+# 新しい投稿を追加する関数を定義します
+def add_post(author, title, content, date):
     try:
         conn = sqlite3.connect(database)
         c = conn.cursor()
         c.execute('''
-        UPDATE posts
-        SET author=?, title=?, content=?
-        WHERE id=?
-        ''', (author, title, content, post_id))
+        INSERT INTO posts (author, title, content, date)
+        SELECT ?, ?, ?, ?
+        WHERE NOT EXISTS (
+            SELECT 1 FROM posts WHERE author = ? AND title = ? AND content = ? AND date = ?
+        )
+        ''', (author, title, content, date, author, title, content, date))
         conn.commit()
         c.close()
         conn.close()
-        st.success("Post updated successfully")
     except sqlite3.Error as e:
-        st.error(f"Error updating post: {e}")
+        st.write(e)
 
 # すべての投稿を取得する関数を定義します
 def get_all_posts():
@@ -51,39 +52,34 @@ def get_all_posts():
         conn.close()
         return data
     except sqlite3.Error as e:
-        st.error(f"Error fetching posts: {e}")
+        st.write(e)
         return []
 
-# 特定の投稿をIDで取得する関数を定義します
-def get_post_by_id(post_id):
+# タイトルで投稿を取得する関数を定義します
+def get_post_by_title(title):
     try:
         conn = sqlite3.connect(database)
         c = conn.cursor()
-        c.execute('SELECT * FROM posts WHERE id=?', (post_id,))
+        c.execute('SELECT * FROM posts WHERE title=?', (title,))
         data = c.fetchone()
         c.close()
         conn.close()
         return data
     except sqlite3.Error as e:
-        st.error(f"Error fetching post: {e}")
+        st.write(e)
         return None
 
-# 投稿を更新する関数を定義します
-def update_post(post_id, author, title, content):
+# 投稿を削除する関数を定義します
+def delete_post(title):
     try:
         conn = sqlite3.connect(database)
         c = conn.cursor()
-        c.execute('''
-        UPDATE posts
-        SET author=?, title=?, content=?
-        WHERE id=?
-        ''', (author, title, content, post_id))
+        c.execute('DELETE FROM posts WHERE title=?', (title,))
         conn.commit()
         c.close()
         conn.close()
-        st.success("Post updated successfully")
     except sqlite3.Error as e:
-        st.error(f"Error updating post: {e}")
+        st.write(e)
 
 # Define some HTML templates for displaying the posts
 title_temp = """
@@ -124,24 +120,13 @@ elif choice == "View Posts":
     st.write("Here you can see all the posts in the blog.")
     # Get all the posts from the database
     posts = get_all_posts()
-    # Display each post with update and read more buttons
+    # Display each post as a card
     for i, post in enumerate(posts):
         st.markdown(title_temp.format(post[1], post[0], post[2][:50] + "..."), unsafe_allow_html=True)
         # Add a button to view the full post
-        read_more_button_key = f"read_more_{post[0]}"  # Generate a unique key here
-        if st.button("Read More", key=read_more_button_key):
+        button_key = f"read_more_{post[0]}"  # Generate a unique key here
+        if st.button("Read More", key=button_key):
             st.markdown(post_temp.format(post[1], post[0], post[3], post[2]), unsafe_allow_html=True)
-        # Add a button to update the post
-        update_button_key = f"update_post_{post[0]}"  # Generate a unique key here
-        if st.button("Update", key=update_button_key):
-            # Show form to update post
-            with st.form(key=f"update_form_{post[0]}"):
-                author = st.text_input("Author", value=post[1])
-                title = st.text_input("Title", value=post[2])
-                content = st.text_area("Content", value=post[3])
-                submit = st.form_submit_button("Submit")
-            if submit:
-                update_post(post[0], author, title, content)
 elif choice == "Add Post":
     st.title("Add Post")
     st.write("Here you can add a new post to the blog.")
@@ -155,6 +140,7 @@ elif choice == "Add Post":
     # If the form is submitted, add the post to the database
     if submit:
         add_post(author, title, content, date)
+        st.success("Post added successfully")
 elif choice == "Search":
     st.title("Search")
     st.write("Here you can search for a post by title or author.")
@@ -172,8 +158,8 @@ elif choice == "Search":
             for result in results:
                 st.markdown(title_temp.format(result[1], result[0], result[2][:50] + "..."), unsafe_allow_html=True)
                 # Add a button to view the full post
-                read_more_button_key = f"read_more_{result[0]}"  # Generate a unique key here
-                if st.button("Read More", key=read_more_button_key):
+                button_key = f"read_more_{result[0]}"  # Generate a unique key here
+                if st.button("Read More", key=button_key):
                     st.markdown(post_temp.format(result[1], result[0], result[3], result[2]), unsafe_allow_html=True)
         else:
             st.write("No matching posts found")
