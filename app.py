@@ -141,7 +141,7 @@ elif choice == "View Posts":
                 author = st.text_input("Author", value=post[1])
                 title = st.text_input("Title", value=post[2])
                 content = st.text_area("Content", value=post[3])
-                date = st.date_input("Date", value=post[4]) if post[4] else st.date_input("Date")
+                date = st.date_input("Date", value=post[4])
                 submit = st.form_submit_button("Submit")
             if submit:
                 update_post(post[0], author, title, content, date)
