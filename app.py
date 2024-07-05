@@ -107,8 +107,6 @@ if choice == "Home":
     st.write("You can view, add, and manage posts using the sidebar menu.")
     image = Image.open('Image/図2.png')
     st.image(image)
-    image = Image.open('Image/図3.jpg')
-    st.image(image)
 
 elif choice == "View Posts":
     st.title("View Posts")
