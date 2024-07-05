@@ -46,7 +46,7 @@ def get_all_posts():
     try:
         conn = sqlite3.connect(database)
         c = conn.cursor()
-        c.execute('SELECT * FROM posts ORDER BY date ASC')
+        c.execute('SELECT * FROM posts')
         data = c.fetchall()
         c.close()
         conn.close()
@@ -55,12 +55,26 @@ def get_all_posts():
         st.write(e)
         return []
 
-# 投稿を削除する関数を定義します
-def delete_post(post_id):
+# タイトルで投稿を取得する関数を定義します
+def get_post_by_title(title):
     try:
         conn = sqlite3.connect(database)
         c = conn.cursor()
-        c.execute('DELETE FROM posts WHERE id=?', (post_id,))
+        c.execute('SELECT * FROM posts WHERE title=?', (title,))
+        data = c.fetchone()
+        c.close()
+        conn.close()
+        return data
+    except sqlite3.Error as e:
+        st.write(e)
+        return None
+
+# 投稿を削除する関数を定義します
+def delete_post(title):
+    try:
+        conn = sqlite3.connect(database)
+        c = conn.cursor()
+        c.execute('DELETE FROM posts WHERE title=?', (title,))
         conn.commit()
         c.close()
         conn.close()
@@ -91,9 +105,8 @@ post_temp = """
 </div>
 """
 
-# Predefined password for deletion and creation
+# Predefined password for deletion
 delete_password = "your_secure_password"
-create_password = "your_secure_create_password"
 
 # Create a sidebar menu with different options
 menu = ["Home", "View Posts", "Add Post", "Search", "Manage"]
@@ -126,15 +139,11 @@ elif choice == "Add Post":
         title = st.text_input("Title")
         content = st.text_area("Content")
         date = st.date_input("Date")
-        password = st.text_input("Enter password", type="password")
         submit = st.form_submit_button("Submit")
     # If the form is submitted, add the post to the database
     if submit:
-        if password == create_password:
-            add_post(author, title, content, date)
-            st.success("Post added successfully")
-        else:
-            st.error("Invalid password")
+        add_post(author, title, content, date)
+        st.success("Post added successfully")
 elif choice == "Search":
     st.title("Search")
     st.write("Here you can search for a post by title or author.")
@@ -161,16 +170,14 @@ elif choice == "Manage":
     st.title("Manage")
     st.write("Here you can delete posts or view some statistics.")
     # Create a selectbox to choose a post to delete
-    posts = get_all_posts()
-    titles = [f"{post[0]}: {post[2]}" for post in posts]  # Display post ID and title
-    selected = st.selectbox("Select a post to delete", titles)
-    post_id = int(selected.split(":")[0])  # Extract post ID
+    titles = [post[1] for post in get_all_posts()]
+    title = st.selectbox("Select a post to delete", titles)
     # Add a password input
     password = st.text_input("Enter password", type="password")
     # Add a button to confirm the deletion
     if st.button("Delete"):
         if password == delete_password:
-            delete_post(post_id)
+            delete_post(title)
             st.success("Post deleted successfully")
         else:
             st.error("Invalid password")
