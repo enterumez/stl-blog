@@ -46,7 +46,7 @@ def get_all_posts():
     try:
         conn = sqlite3.connect(database)
         c = conn.cursor()
-        c.execute('SELECT * FROM posts ORDER BY date DESC')
+        c.execute('SELECT * FROM posts ORDER BY date ASC')
         data = c.fetchall()
         c.close()
         conn.close()
