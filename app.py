@@ -144,6 +144,7 @@ elif choice == "View Posts":
                 submit = st.form_submit_button("Submit")
             if submit:
                 update_post(post[0], author, title, content)
+                st.experimental_rerun()  # 更新後にアプリを再読み込みするためにrerunを使用
 elif choice == "Add Post":
     st.title("Add Post")
     st.write("Here you can add a new post to the blog.")
