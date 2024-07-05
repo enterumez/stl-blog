@@ -105,6 +105,9 @@ post_temp = """
 </div>
 """
 
+# Predefined password for deletion
+delete_password = "your_secure_password"
+
 # Create a sidebar menu with different options
 menu = ["Home", "View Posts", "Add Post", "Search", "Manage"]
 choice = st.sidebar.selectbox("Menu", menu)
@@ -169,16 +172,21 @@ elif choice == "Manage":
     # Create a selectbox to choose a post to delete
     titles = [post[1] for post in get_all_posts()]
     title = st.selectbox("Select a post to delete", titles)
+    # Add a password input
+    password = st.text_input("Enter password", type="password")
     # Add a button to confirm the deletion
     if st.button("Delete"):
-        delete_post(title)
-        st.success("Post deleted successfully")
+        if password == delete_password:
+            delete_post(title)
+            st.success("Post deleted successfully")
+        else:
+            st.error("Invalid password")
     # Create a checkbox to show some statistics
     if st.checkbox("Show statistics"):
         # Get all the posts from the database
         posts = get_all_posts()
         # Convert the posts to a dataframe
-        df = pd.DataFrame(posts, columns=["author", "title", "content", "date"])
+        df = pd.DataFrame(posts, columns=["id", "author", "title", "content", "date"])
         # Display some basic statistics
         st.write("Number of posts:", len(posts))
         st.write("Number of authors:", len(df["author"].unique()))
