@@ -143,7 +143,7 @@ elif choice == "View Posts":
                 content = st.text_area("Content", value=post[3])
                 submit = st.form_submit_button("Submit")
             if submit:
-                update_post(post[0], author, title, content, date)
+                update_post(post[0], author, title, content)
 elif choice == "Add Post":
     st.title("Add Post")
     st.write("Here you can add a new post to the blog.")
