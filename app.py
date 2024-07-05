@@ -71,15 +71,15 @@ def get_post_by_id(post_id):
         return None
 
 # 投稿を更新する関数を定義します
-def update_post(post_id, author, title, content, date):
+def update_post(post_id, author, title, content):
     try:
         conn = sqlite3.connect(database)
         c = conn.cursor()
         c.execute('''
         UPDATE posts
-        SET author=?, title=?, content=?, date=?
+        SET author=?, title=?, content=?
         WHERE id=?
-        ''', (author, title, content, date, post_id))
+        ''', (author, title, content, post_id))
         conn.commit()
         c.close()
         conn.close()
