@@ -204,5 +204,3 @@ elif choice == "Manage":
         st.write("Posts by author:")
         author_count = df["author"].value_counts()
         st.bar_chart(author_count)
-
-更新部分、submitを押しても、変更が反映されず、上書きされない
