@@ -91,8 +91,9 @@ post_temp = """
 </div>
 """
 
-# Predefined password for deletion
-delete_password = "shuta0105"
+# Predefined password for deletion and creation
+delete_password = "your_secure_password"
+create_password = "your_secure_create_password"
 
 # Create a sidebar menu with different options
 menu = ["Home", "View Posts", "Add Post", "Search", "Manage"]
@@ -125,11 +126,15 @@ elif choice == "Add Post":
         title = st.text_input("Title")
         content = st.text_area("Content")
         date = st.date_input("Date")
+        password = st.text_input("Enter password", type="password")
         submit = st.form_submit_button("Submit")
     # If the form is submitted, add the post to the database
     if submit:
-        add_post(author, title, content, date)
-        st.success("Post added successfully")
+        if password == create_password:
+            add_post(author, title, content, date)
+            st.success("Post added successfully")
+        else:
+            st.error("Invalid password")
 elif choice == "Search":
     st.title("Search")
     st.write("Here you can search for a post by title or author.")
