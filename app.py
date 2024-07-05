@@ -83,8 +83,8 @@ def delete_post(title):
 
 # Define some HTML templates for displaying the posts
 title_temp = """
-<div style="background-color:#464e5f;padding:10px;border-radius:10px;margin:10px;">
-<h4 style="color:white;text-align:center;">{}</h4>
+<div style="background-color:#c7c9cf;padding:10px;border-radius:10px;margin:10px;">
+<h4 style="color:black;text-align:center;">{}</h4>
 <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" style="vertical-align: middle;float:left;width: 50px;height: 50px;border-radius: 50%;">
 <h6>Author: {}</h6>
 <br/>
@@ -94,8 +94,8 @@ title_temp = """
 """
 
 post_temp = """
-<div style="background-color:#464e5f;padding:10px;border-radius:5px;margin:10px;">
-<h4 style="color:white;text-align:center;">{}</h4>
+<div style="background-color:#c7c9cf;padding:10px;border-radius:5px;margin:10px;">
+<h4 style="color:black;text-align:center;">{}</h4>
 <h6>Author: {}</h6>
 <h6>Date: {}</h6>
 <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" style="vertical-align: middle;width: 50px;height: 50px;border-radius: 50%;">
