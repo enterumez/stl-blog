@@ -128,7 +128,7 @@ elif choice == "View Posts":
     posts = get_all_posts()
     # Display each post with update and read more buttons
     for i, post in enumerate(posts):
-            st.markdown(title_temp.format(post[1], post[0], post[2][:50]), unsafe_allow_html=True)
+        st.markdown(title_temp.format(post[1], post[0], post[2][:50] + "..."), unsafe_allow_html=True)
         # Add a button to view the full post
         read_more_button_key = f"read_more_{post[0]}"  # Generate a unique key here
         if st.button("Read More", key=read_more_button_key):
@@ -144,7 +144,6 @@ elif choice == "View Posts":
                 submit = st.form_submit_button("Submit")
             if submit:
                 update_post(post[0], author, title, content)
-                st.experimental_rerun()  # 更新後にアプリを再読み込みするためにrerunを使用
 elif choice == "Add Post":
     st.title("Add Post")
     st.write("Here you can add a new post to the blog.")
@@ -205,3 +204,5 @@ elif choice == "Manage":
         st.write("Posts by author:")
         author_count = df["author"].value_counts()
         st.bar_chart(author_count)
+
+更新部分、submitを押しても、変更が反映されず、上書きされない
