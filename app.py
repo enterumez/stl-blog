@@ -46,7 +46,7 @@ def get_all_posts():
     try:
         conn = sqlite3.connect(database)
         c = conn.cursor()
-        c.execute('SELECT * FROM posts')
+        c.execute('SELECT * FROM posts ORDER BY date DESC')
         data = c.fetchall()
         c.close()
         conn.close()
@@ -92,8 +92,8 @@ post_temp = """
 """
 
 # Predefined password for deletion and creation
-delete_password = "shuta0105"
-create_password = "shuta0105"
+delete_password = "your_secure_password"
+create_password = "your_secure_create_password"
 
 # Create a sidebar menu with different options
 menu = ["Home", "View Posts", "Add Post", "Search", "Manage"]
