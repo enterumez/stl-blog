@@ -6,24 +6,22 @@ import pandas as pd
 # データベースファイルの名前
 database = 'blog.db'
 
-# データベースファイルを再作成
-if os.path.exists(database):
-    os.remove(database)
-
-conn = sqlite3.connect(database)
-c = conn.cursor()
-c.execute('''
-CREATE TABLE IF NOT EXISTS posts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    author TEXT NOT NULL,
-    title TEXT NOT NULL,
-    content TEXT NOT NULL,
-    date DATE NOT NULL
-)
-''')
-conn.commit()
-c.close()
-conn.close()
+# データベースファイルが存在しない場合に作成
+if not os.path.exists(database):
+    conn = sqlite3.connect(database)
+    c = conn.cursor()
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS posts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        author TEXT NOT NULL,
+        title TEXT NOT NULL,
+        content TEXT NOT NULL,
+        date DATE NOT NULL
+    )
+    ''')
+    conn.commit()
+    c.close()
+    conn.close()
 
 # 新しい投稿を追加する関数を定義します
 def add_post(author, title, content, date):
@@ -43,20 +41,6 @@ def add_post(author, title, content, date):
     except sqlite3.Error as e:
         st.write(e)
 
-# 投稿を更新する関数を定義します
-def update_post(post_id, author, title, content, date):
-    try:
-        conn = sqlite3.connect(database)
-        c = conn.cursor()
-        c.execute('''
-        UPDATE posts SET author = ?, title = ?, content = ?, date = ? WHERE id = ?
-        ''', (author, title, content, date, post_id))
-        conn.commit()
-        c.close()
-        conn.close()
-    except sqlite3.Error as e:
-        st.write(e)
-
 # すべての投稿を取得する関数を定義します
 def get_all_posts():
     try:
@@ -66,18 +50,17 @@ def get_all_posts():
         data = c.fetchall()
         c.close()
         conn.close()
-        st.write("DEBUG: Data fetched from database:", data)  # デバッグ用出力
         return data
     except sqlite3.Error as e:
         st.write(e)
         return []
 
-# 投稿IDで投稿を取得する関数を定義します
-def get_post_by_id(post_id):
+# タイトルで投稿を取得する関数を定義します
+def get_post_by_title(title):
     try:
         conn = sqlite3.connect(database)
         c = conn.cursor()
-        c.execute('SELECT * FROM posts WHERE id=?', (post_id,))
+        c.execute('SELECT * FROM posts WHERE title=?', (title,))
         data = c.fetchone()
         c.close()
         conn.close()
@@ -137,33 +120,13 @@ elif choice == "View Posts":
     st.write("Here you can see all the posts in the blog.")
     # Get all the posts from the database
     posts = get_all_posts()
-    st.write("DEBUG: Posts fetched:", posts)  # デバッグ用出力
     # Display each post as a card
     for i, post in enumerate(posts):
-        st.markdown(title_temp.format(post[2], post[1], post[3][:50] + "..."), unsafe_allow_html=True)
-        # Add buttons to view the full post and update it
+        st.markdown(title_temp.format(post[1], post[0], post[2][:50] + "..."), unsafe_allow_html=True)
+        # Add a button to view the full post
         button_key = f"read_more_{post[0]}"  # Generate a unique key here
         if st.button("Read More", key=button_key):
-            st.markdown(post_temp.format(post[2], post[1], post[4], post[3]), unsafe_allow_html=True)
-        update_key = f"update_{post[0]}"
-        if st.button("Update", key=update_key):
-            st.session_state['update_post_id'] = post[0]
-
-if 'update_post_id' in st.session_state:
-    post_id = st.session_state['update_post_id']
-    post = get_post_by_id(post_id)
-    if post:
-        st.title("Update Post")
-        with st.form(key="update_form"):
-            author = st.text_input("Author", value=post[1])
-            title = st.text_input("Title", value=post[2])
-            content = st.text_area("Content", value=post[3])
-            date = st.date_input("Date", value=pd.to_datetime(post[4]))
-            submit = st.form_submit_button("Submit")
-        if submit:
-            update_post(post_id, author, title, content, date)
-            st.success("Post updated successfully")
-            del st.session_state['update_post_id']
+            st.markdown(post_temp.format(post[1], post[0], post[3], post[2]), unsafe_allow_html=True)
 elif choice == "Add Post":
     st.title("Add Post")
     st.write("Here you can add a new post to the blog.")
@@ -204,6 +167,24 @@ elif choice == "Manage":
     st.title("Manage")
     st.write("Here you can delete posts or view some statistics.")
     # Create a selectbox to choose a post to delete
-    titles = [post[2] for post in get_all_posts()]
+    titles = [post[1] for post in get_all_posts()]
     title = st.selectbox("Select a post to delete", titles)
-    # Add a button to confirm
+    # Add a button to confirm the deletion
+    if st.button("Delete"):
+        delete_post(title)
+        st.success("Post deleted successfully")
+    # Create a checkbox to show some statistics
+    if st.checkbox("Show statistics"):
+        # Get all the posts from the database
+        posts = get_all_posts()
+        # Convert the posts to a dataframe
+        df = pd.DataFrame(posts, columns=["author", "title", "content", "date"])
+        # Display some basic statistics
+        st.write("Number of posts:", len(posts))
+        st.write("Number of authors:", len(df["author"].unique()))
+        st.write("Most recent post:", df["date"].max())
+        st.write("Oldest post:", df["date"].min())
+        # Display a bar chart of posts by author
+        st.write("Posts by author:")
+        author_count = df["author"].value_counts()
+        st.bar_chart(author_count)
