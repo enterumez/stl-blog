@@ -55,26 +55,12 @@ def get_all_posts():
         st.write(e)
         return []
 
-# タイトルで投稿を取得する関数を定義します
-def get_post_by_title(title):
-    try:
-        conn = sqlite3.connect(database)
-        c = conn.cursor()
-        c.execute('SELECT * FROM posts WHERE title=?', (title,))
-        data = c.fetchone()
-        c.close()
-        conn.close()
-        return data
-    except sqlite3.Error as e:
-        st.write(e)
-        return None
-
 # 投稿を削除する関数を定義します
-def delete_post(title):
+def delete_post(post_id):
     try:
         conn = sqlite3.connect(database)
         c = conn.cursor()
-        c.execute('DELETE FROM posts WHERE title=?', (title,))
+        c.execute('DELETE FROM posts WHERE id=?', (post_id,))
         conn.commit()
         c.close()
         conn.close()
@@ -106,7 +92,7 @@ post_temp = """
 """
 
 # Predefined password for deletion
-delete_password = "your_secure_password"
+delete_password = "shuta0105"
 
 # Create a sidebar menu with different options
 menu = ["Home", "View Posts", "Add Post", "Search", "Manage"]
@@ -170,14 +156,16 @@ elif choice == "Manage":
     st.title("Manage")
     st.write("Here you can delete posts or view some statistics.")
     # Create a selectbox to choose a post to delete
-    titles = [post[1] for post in get_all_posts()]
-    title = st.selectbox("Select a post to delete", titles)
+    posts = get_all_posts()
+    titles = [f"{post[0]}: {post[2]}" for post in posts]  # Display post ID and title
+    selected = st.selectbox("Select a post to delete", titles)
+    post_id = int(selected.split(":")[0])  # Extract post ID
     # Add a password input
     password = st.text_input("Enter password", type="password")
     # Add a button to confirm the deletion
     if st.button("Delete"):
         if password == delete_password:
-            delete_post(title)
+            delete_post(post_id)
             st.success("Post deleted successfully")
         else:
             st.error("Invalid password")
