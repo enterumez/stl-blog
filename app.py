@@ -115,7 +115,7 @@ elif choice == "View Posts":
     posts = get_all_posts()
     # Display each post as a card
     for post in posts:
-        st.markdown(title_temp.format(post[2], post[1], post[3][:50] + "..."), unsafe_allow_html=True)
+        st.markdown(title_temp.format(post[2], post[1], post[3][:10] + "..."), unsafe_allow_html=True)
         # Add a button to view the full post
         button_key = f"read_more_{post[0]}"  # Generate a unique key here
         if st.button("Read More", key=button_key):
